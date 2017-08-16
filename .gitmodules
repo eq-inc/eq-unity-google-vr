@@ -1,0 +1,6 @@
+[submodule "Assets/Scripts/EqUnity"]
+	path = Assets/Scripts/EqUnity
+	url = https://github.com/eq-inc/eq-unity-utility.git
+[submodule "Assets/Scripts/EqGoogleVR"]
+	path = Assets/Scripts/EqGoogleVR
+	url = https://github.com/eq-inc/eq-unity-google-vr-utility.git
