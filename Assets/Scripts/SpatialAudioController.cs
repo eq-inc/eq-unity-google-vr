@@ -1,118 +1,82 @@
-﻿using Eq.Unity;
+﻿using Eq.GoogleVR;
+using Eq.Unity;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class SpatialAudioController : BaseAndroidMainController
 {
     public GameObject mSoundBoxPrefab;
-    private BaseInput mInput;
+    private TouchPadClickHelper mClickHelper;
+    private Dictionary<GameObject, bool> mExistSoundBoxDic = new Dictionary<GameObject, bool>();
 
     internal override void Start()
     {
         base.Start();
-        GameObject eventSystem = GameObject.Find("GvrEventSystem");
-        mInput = eventSystem.GetComponent<GvrPointerInputModule>().input;
+        mClickHelper = new TouchPadClickHelper(mLogger);
     }
 
     internal override void Update()
     {
         base.Update();
-        ManageTouch();
+        PlaySound();
+        ManageClick();
     }
 
-    public void AddSoundBoxButtonClicked()
+    private void PlaySound()
     {
-        Vector3 positionWp = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, 0));
-        GameObject soundBoxGameObject = Instantiate(mSoundBoxPrefab, positionWp, Quaternion.identity);
-        soundBoxGameObject.SetActive(true);
+        Dictionary<GameObject, bool> tempChangedSoundBoxDic = new Dictionary<GameObject, bool>();
 
-        GvrAudioSource audioSource = soundBoxGameObject.GetComponent<GvrAudioSource>();
-        if (audioSource != null)
+        foreach (KeyValuePair<GameObject, bool> keyValuePair in mExistSoundBoxDic)
         {
-            audioSource.Play();
-        }
-    }
-
-    private void AddSoundBox()
-    {
-        mLogger.CategoryLog(LogCategoryMethodIn);
-
-        Vector3 positionWp = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, 0));
-        GameObject soundBoxGameObject = Instantiate(mSoundBoxPrefab, positionWp, Quaternion.identity);
-        soundBoxGameObject.SetActive(true);
-
-        GvrAudioSource audioSource = soundBoxGameObject.GetComponent<GvrAudioSource>();
-        if (audioSource != null)
-        {
-            audioSource.Play();
-        }
-
-        mLogger.CategoryLog(LogCategoryMethodOut);
-    }
-
-    private void ManageTouch()
-    {
-        mLogger.CategoryLog(LogCategoryMethodIn, "touch count = " + mInput.touchCount + ", touching = " + GvrController.IsTouching);
-        if (mInput.touchCount > 0)
-        {
-            Touch lastTouch = mInput.GetTouch(0);
-            mLogger.CategoryLog(LogCategoryMethodTrace, "touch phase = " + lastTouch.phase);
-            if (lastTouch.phase == TouchPhase.Ended)
+            if (!keyValuePair.Value)
             {
-                Ray ray = Camera.main.ScreenPointToRay(lastTouch.position);
-                RaycastHit raycastHit = new RaycastHit();
-
-                if (Physics.Raycast(ray, out raycastHit))
+                GameObject soundBoxGO = keyValuePair.Key;
+                GvrAudioSource audioSource = soundBoxGO.GetComponent<GvrAudioSource>();
+                if (audioSource.isPlaying)
                 {
-                    mLogger.CategoryLog(LogCategoryMethodTrace, "hit ray");
-
-                    GvrAudioSource audioSource = raycastHit.collider.gameObject.GetComponent<GvrAudioSource>();
-                    if (audioSource.isPlaying)
-                    {
-                        audioSource.Stop();
-                    }
-                    else
-                    {
-                        audioSource.Play();
-                    }
+                    tempChangedSoundBoxDic.Add(soundBoxGO, true);
                 }
                 else
                 {
-                    mLogger.CategoryLog(LogCategoryMethodTrace, "hit ray");
-
-                    AddSoundBox();
+                    audioSource.clip.LoadAudioData();
+                    audioSource.Play();
+                    mLogger.CategoryLog(LogCategoryMethodTrace, "playing: " + audioSource.isPlaying);
+                    tempChangedSoundBoxDic.Add(soundBoxGO, audioSource.isPlaying);
                 }
             }
         }
-        else if (GvrController.IsTouching)
+
+        foreach (KeyValuePair<GameObject, bool> keyValuePair in tempChangedSoundBoxDic)
         {
-            mLogger.CategoryLog(LogCategoryMethodTrace, "touch down = " + GvrController.TouchDown + ", up = " + GvrController.TouchUp);
-            if (GvrController.TouchDown)
+            if (keyValuePair.Value)
             {
-                Vector2 touchPosition = GvrController.TouchPos;
-                Ray ray = Camera.main.ScreenPointToRay(new Vector3(touchPosition.x, 0, touchPosition.y));
-                RaycastHit raycastHit = new RaycastHit();
+                mExistSoundBoxDic[keyValuePair.Key] = true;
+            }
+        }
+    }
 
-                if (Physics.Raycast(ray, out raycastHit))
-                {
-                    mLogger.CategoryLog(LogCategoryMethodTrace, "hit ray");
+    private void ManageClick()
+    {
+        mLogger.CategoryLog(LogCategoryMethodIn, "click status = " + mClickHelper.ClickStatus);
+        if (mClickHelper.ClickStatus == ClickStatus.Up)
+        {
+            GameObject clickedGO = mClickHelper.ClickedGameObject;
 
-                    GvrAudioSource audioSource = raycastHit.collider.gameObject.GetComponent<GvrAudioSource>();
-                    if (audioSource.isPlaying)
-                    {
-                        audioSource.Stop();
-                    }
-                    else
-                    {
-                        audioSource.Play();
-                    }
-                }
-                else
-                {
-                    mLogger.CategoryLog(LogCategoryMethodTrace, "hit ray");
+            if (clickedGO != null)
+            {
+                mLogger.CategoryLog(LogCategoryMethodTrace, "hit ray");
+                mExistSoundBoxDic.Remove(clickedGO);
+                Destroy(clickedGO);
+            }
+            else
+            {
+                mLogger.CategoryLog(LogCategoryMethodTrace, "not hit ray");
+                Vector3 clickWorldPosition = mClickHelper.ClickWorldPosition;
+                GameObject newInputInstance = Instantiate(mSoundBoxPrefab, clickWorldPosition, Quaternion.identity);
+                newInputInstance.SetActive(true);
 
-                    AddSoundBox();
-                }
+                mExistSoundBoxDic.Add(newInputInstance, false);
             }
         }
         mLogger.CategoryLog(LogCategoryMethodOut);
