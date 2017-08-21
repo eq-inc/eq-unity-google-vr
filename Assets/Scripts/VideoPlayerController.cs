@@ -45,7 +45,7 @@ public class VideoPlayerController : BaseAndroidMainController
         if (mClickHelper.ClickStatus == ClickStatus.Up)
         {
             GameObject clickedGO = mClickHelper.ClickedGameObject;
-            if(clickedGO != null && clickedGO.name.CompareTo("VideoPlayer") == 0)
+            if (clickedGO != null && clickedGO.name.CompareTo("VideoPlayer") == 0)
             {
                 GvrVideoPlayerTexture videoTexture = clickedGO.GetComponent<GvrVideoPlayerTexture>();
                 if (videoTexture.IsPaused)
@@ -55,23 +55,49 @@ public class VideoPlayerController : BaseAndroidMainController
                         if (videoTexture.videoURL.StartsWith("http"))
                         {
                             // そのまま再生を試みる
+                            if (!videoTexture.Play())
+                            {
+                                mReserveControl = ReserveControl.Play;
+                                mLogger.CategoryLog(LogCategoryMethodTrace, "Play video is failed, Reserved");
+                            }
+                            else
+                            {
+                                mReserveControl = ReserveControl.None;
+                                mLogger.CategoryLog(LogCategoryMethodTrace, "Play video");
+                            }
                         }
                         else
                         {
                             // ローカルファイルのため、external storageへのアクセス権限を確認
+                            RuntimePermissionHelper helper = new RuntimePermissionHelper(mLogger);
+                            helper.RequestPermission(RuntimePermissionHelper.READ_EXTERNAL_STORAGE, delegate (GvrPermissionsRequester.PermissionStatus[] permissionStatusArray)
+                            {
+                                bool needFinish = true;
+
+                                if(permissionStatusArray != null && permissionStatusArray.Length > 0)
+                                {
+                                    if(permissionStatusArray[0].Name.CompareTo(RuntimePermissionHelper.READ_EXTERNAL_STORAGE.Name) == 0 && permissionStatusArray[0].Granted)
+                                    {
+                                        needFinish = false;
+                                        if (!videoTexture.Play())
+                                        {
+                                            mReserveControl = ReserveControl.Play;
+                                            mLogger.CategoryLog(LogCategoryMethodTrace, "Play video is failed, Reserved");
+                                        }
+                                        else
+                                        {
+                                            mReserveControl = ReserveControl.None;
+                                            mLogger.CategoryLog(LogCategoryMethodTrace, "Play video");
+                                        }
+                                    }
+                                }
+
+                                if (needFinish)
+                                {
+                                    PopCurrentScene();
+                                }
+                            });
                         }
-                    }
-
-
-                    if (!videoTexture.Play())
-                    {
-                        mReserveControl = ReserveControl.Play;
-                        mLogger.CategoryLog(LogCategoryMethodTrace, "Play video is failed, Reserved");
-                    }
-                    else
-                    {
-                        mReserveControl = ReserveControl.None;
-                        mLogger.CategoryLog(LogCategoryMethodTrace, "Play video");
                     }
                 }
                 else
@@ -89,7 +115,7 @@ public class VideoPlayerController : BaseAndroidMainController
                 }
             }
         }
-        else if(mClickHelper.AppButtonStatus == ButtonPushStatus.Up)
+        else if (mClickHelper.AppButtonStatus == ButtonPushStatus.Up)
         {
             PopCurrentScene();
         }
