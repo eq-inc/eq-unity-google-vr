@@ -6,6 +6,13 @@ using UnityEngine.EventSystems;
 
 public class TopMainController : BaseAndroidMainController {
 
+    public void MenuRuntimePermissionClicked()
+    {
+        mLogger.CategoryLog(LogCategoryMethodIn);
+        MenuClicked("RuntimePermission");
+        mLogger.CategoryLog(LogCategoryMethodOut);
+    }
+
     public void MenuSpatialAudioClicked()
     {
         mLogger.CategoryLog(LogCategoryMethodIn);
