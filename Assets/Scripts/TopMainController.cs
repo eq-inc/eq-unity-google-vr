@@ -13,6 +13,13 @@ public class TopMainController : BaseAndroidMainController {
         mLogger.CategoryLog(LogCategoryMethodOut);
     }
 
+    public void MenuVideoPlayerClicked()
+    {
+        mLogger.CategoryLog(LogCategoryMethodIn);
+        MenuClicked("VideoPlayer");
+        mLogger.CategoryLog(LogCategoryMethodOut);
+    }
+
     public void MenuSpatialAudioClicked()
     {
         mLogger.CategoryLog(LogCategoryMethodIn);
