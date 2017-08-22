@@ -6,6 +6,13 @@ using UnityEngine.EventSystems;
 
 public class TopMainController : BaseAndroidMainController {
 
+    public void MenuInstantPreviewClicked()
+    {
+        mLogger.CategoryLog(LogCategoryMethodIn);
+        MenuClicked("InstantPreview");
+        mLogger.CategoryLog(LogCategoryMethodOut);
+    }
+
     public void MenuRuntimePermissionClicked()
     {
         mLogger.CategoryLog(LogCategoryMethodIn);
