@@ -6,6 +6,13 @@ using UnityEngine.EventSystems;
 
 public class TopMainController : BaseAndroidMainController {
 
+    public void MenuBackgroundCameraPreviewClicked()
+    {
+        mLogger.CategoryLog(LogCategoryMethodIn);
+        MenuClicked("BackgroundCameraPreview");
+        mLogger.CategoryLog(LogCategoryMethodOut);
+    }
+
     public void MenuInstantPreviewClicked()
     {
         mLogger.CategoryLog(LogCategoryMethodIn);
