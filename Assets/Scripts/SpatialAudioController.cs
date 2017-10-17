@@ -13,6 +13,7 @@ public class SpatialAudioController : BaseAndroidMainController
     internal override void Start()
     {
         base.Start();
+
         mClickHelper = new TouchPadClickHelper(mLogger);
     }
 

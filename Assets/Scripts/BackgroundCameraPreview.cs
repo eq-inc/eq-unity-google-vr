@@ -5,7 +5,6 @@ using UnityEngine;
 public class BackgroundCameraPreview : BaseAndroidMainController
 {
     public GameObject mCameraPreviewQuad;
-    private Vector3 mCenterScreenPoint;
 
     internal override void Start()
     {
@@ -14,8 +13,6 @@ public class BackgroundCameraPreview : BaseAndroidMainController
         mLogger.CategoryLog(LogCategoryMethodIn);
         SetScreenOrientation(ScreenOrientation.Landscape);
         SetScreenTimeout(BaseAndroidMainController.NeverSleep);
-
-        mCenterScreenPoint = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 
         RuntimePermissionHelper helper = new RuntimePermissionHelper(mLogger);
         helper.RequestPermission(RuntimePermissionHelper.CAMERA, delegate (GvrPermissionsRequester.PermissionStatus[] permissionStatusArray)
