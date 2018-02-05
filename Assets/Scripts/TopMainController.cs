@@ -1,8 +1,4 @@
 ﻿using Eq.Unity;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class TopMainController : BaseAndroidMainController {
 
@@ -45,6 +41,13 @@ public class TopMainController : BaseAndroidMainController {
     {
         mLogger.CategoryLog(LogCategoryMethodIn);
         MenuClicked("TouchPad");
+        mLogger.CategoryLog(LogCategoryMethodOut);
+    }
+
+    public void MenuPointerTestClicked()
+    {
+        mLogger.CategoryLog(LogCategoryMethodIn);
+        MenuClicked("Pointer");
         mLogger.CategoryLog(LogCategoryMethodOut);
     }
 
