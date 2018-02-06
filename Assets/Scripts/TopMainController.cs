@@ -51,6 +51,13 @@ public class TopMainController : BaseAndroidMainController {
         mLogger.CategoryLog(LogCategoryMethodOut);
     }
 
+    public void MenuResonanceAudioClicked()
+    {
+        mLogger.CategoryLog(LogCategoryMethodIn);
+        MenuClicked("ResonanceAudio");
+        mLogger.CategoryLog(LogCategoryMethodOut);
+    }
+
     private void MenuClicked(string menuAndNextSceneName)
     {
         mLogger.CategoryLog(LogCategoryMethodIn);
