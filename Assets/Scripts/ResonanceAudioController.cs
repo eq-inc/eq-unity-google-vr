@@ -13,7 +13,7 @@ public class ResonanceAudioController : BaseAndroidMainController
     {
         base.Start();
 
-        Common.GvrSdkVersion = Common.GoogleVRSDKVersion.v1_120_0;
+        Eq.GoogleVR.Common.GvrSdkVersion = Eq.GoogleVR.Common.GoogleVRSDKVersion.v1_120_0;
         mClickHelper = new TouchPadClickHelper(mLogger);
     }
 
@@ -33,17 +33,22 @@ public class ResonanceAudioController : BaseAndroidMainController
             if (!keyValuePair.Value)
             {
                 GameObject soundBoxGO = keyValuePair.Key;
-                ResonanceAudioSource audioSource = soundBoxGO.GetComponent<ResonanceAudioSource>();
-                if (audioSource.audioSource.isPlaying)
+                ResonanceAudioSource resonanceAudioSource = soundBoxGO.GetComponent<ResonanceAudioSource>();
+                if (resonanceAudioSource.audioSource.isPlaying)
                 {
                     tempChangedSoundBoxDic.Add(soundBoxGO, true);
                 }
                 else
                 {
-                    audioSource.audioSource.clip.LoadAudioData();
-                    audioSource.audioSource.Play();
-                    mLogger.CategoryLog(LogCategoryMethodTrace, "playing: " + audioSource.audioSource.isPlaying);
-                    tempChangedSoundBoxDic.Add(soundBoxGO, audioSource.audioSource.isPlaying);
+                    resonanceAudioSource.audioSource.clip.LoadAudioData();
+                    resonanceAudioSource.audioSource.Play();
+
+                    AudioSource audioSource = soundBoxGO.GetComponent<AudioSource>();
+                    audioSource.spatialize = true;
+                    audioSource.spatializePostEffects = true;
+
+                    mLogger.CategoryLog(LogCategoryMethodTrace, "playing: " + resonanceAudioSource.audioSource.isPlaying);
+                    tempChangedSoundBoxDic.Add(soundBoxGO, resonanceAudioSource.audioSource.isPlaying);
                 }
             }
         }
